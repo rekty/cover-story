@@ -6,6 +6,8 @@ Hide a message in the pixels of any picture. The photo looks untouched, the PNG 
 and Pollinations writes the caption that keeps it ordinary. Live app:
 **https://rekty.github.io/cover-story/**
 
+![Cover Story](assets/screenshot.png)
+
 Steganography is the old trick of hiding a message inside something ordinary — a picture, so only
 someone who knows to look will find it. Most "AI hides a message" demos ask a model to be sneaky and
 then hope the secret survived re-encoding. This one hides the message **in the bits**, so the claim
