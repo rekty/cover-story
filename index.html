@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cover Story — hide a message in a picture</title>
+    <meta
+      name="description"
+      content="Hide a message in the pixels of any picture, and let Pollinations write the caption that keeps it ordinary. Readers pay with their own Pollen."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111016'/%3E%3Ccircle cx='24' cy='24' r='8' fill='%236f5dff'/%3E%3Cpath d='M8 52l14-18 10 12 8-8 16 14z' fill='%2327d4cd'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f3f3f7;
+        --muted: #a2a2b0;
+        --line: rgba(255, 255, 255, 0.13);
+        --card: #1a1b21;
+        --violet: #6f5dff;
+        --cyan: #27d4cd;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 34px 20px 70px;
+        background:
+          radial-gradient(800px 380px at 85% -8%, rgba(111, 93, 255, 0.2), transparent 70%),
+          radial-gradient(700px 340px at 5% 0%, rgba(39, 212, 205, 0.12), transparent 70%),
+          #101014;
+        color: var(--ink);
+        font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: clamp(26px, 3.4vw, 36px);
+        letter-spacing: -0.02em;
+      }
+      .lede {
+        margin: 0;
+        max-width: 60ch;
+        color: #d5d5de;
+      }
+      .auth {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 230px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        font-size: 13px;
+      }
+      .auth strong {
+        font-size: 13px;
+      }
+      .auth .code {
+        font: 600 17px/1.2 ui-monospace, Menlo, monospace;
+        letter-spacing: 0.16em;
+      }
+      .tabs {
+        display: flex;
+        gap: 6px;
+        margin: 26px 0 16px;
+      }
+      .tabs button {
+        padding: 8px 16px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: none;
+        color: var(--muted);
+        font: inherit;
+        cursor: pointer;
+      }
+      .tabs button[aria-selected="true"] {
+        color: var(--ink);
+        border-color: transparent;
+        background: linear-gradient(95deg, var(--violet), var(--cyan));
+        color: #0d0d16;
+        font-weight: 600;
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 880px) {
+        .grid {
+          grid-template-columns: 1.05fr 1fr;
+        }
+      }
+      section.panel {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+      }
+      section.panel h2 {
+        margin: 0 0 4px;
+        font-size: 15px;
+      }
+      .hint {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .drop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 132px;
+        padding: 14px;
+        border: 1px dashed rgba(255, 255, 255, 0.24);
+        border-radius: 11px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .drop.over {
+        border-color: var(--cyan);
+        color: var(--ink);
+      }
+      .drop.compact {
+        min-height: 48px;
+        padding: 10px;
+      }
+      canvas.preview {
+        display: none;
+        width: 100%;
+        height: auto;
+        max-height: 196px;
+        object-fit: cover;
+        border-radius: 11px;
+      }
+      canvas.preview.shown {
+        display: block;
+      }
+      textarea {
+        width: 100%;
+        min-height: 88px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #131319;
+        color: var(--ink);
+        font: inherit;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      button.act {
+        padding: 9px 15px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: #24242b;
+        color: var(--ink);
+        font: inherit;
+        cursor: pointer;
+      }
+      button.act.primary {
+        border: 0;
+        font-weight: 600;
+        color: #0d0d16;
+        background: linear-gradient(95deg, var(--violet), var(--cyan));
+      }
+      button.act:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      a.act {
+        padding: 9px 15px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .link {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--cyan);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      .status {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        min-height: 20px;
+      }
+      .status.bad {
+        color: #ff9a8f;
+      }
+      .captions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .caption {
+        padding: 9px 11px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #131319;
+        color: #e6e6ee;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .caption:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .found {
+        margin-top: 12px;
+        padding: 12px;
+        border-left: 3px solid var(--cyan);
+        border-radius: 8px;
+        background: #12161a;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .found:empty {
+        display: none;
+      }
+      select {
+        padding: 8px 10px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: #24242b;
+        color: var(--ink);
+        font: inherit;
+      }
+      footer {
+        margin-top: 34px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+      footer img {
+        display: block;
+        width: 172px;
+        margin-bottom: 10px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Cover Story</h1>
+          <p class="lede">
+            Hide a message in the pixels of any picture. The photo looks untouched, the PNG carries
+            the note, and Pollinations writes the caption that keeps it ordinary. Sign in and each
+            request spends your own Pollen.
+          </p>
+        </div>
+        <div class="auth">
+          <strong id="auth-title">Not connected</strong>
+          <span id="auth-note" class="hint" style="margin: 0">
+            Sign in to write captions and open messages.
+          </span>
+          <div id="auth-device" hidden>
+            <div class="code" id="auth-code"></div>
+            <button class="link" id="auth-open">Open the approval page</button>
+          </div>
+          <div class="row" style="margin-top: 0">
+            <button class="act" id="auth-connect">Connect Pollen</button>
+            <button class="act" id="auth-out" hidden>Disconnect</button>
+          </div>
+          <details>
+            <summary style="cursor: pointer">Already have an sk_ key?</summary>
+            <textarea id="auth-key" placeholder="sk_…" style="min-height: 40px; margin-top: 8px"></textarea>
+            <button class="link" id="auth-use">Use this key</button>
+          </details>
+        </div>
+      </header>
+
+      <div class="tabs" role="tablist">
+        <button id="tab-hide" role="tab" aria-selected="true">Hide</button>
+        <button id="tab-reveal" role="tab" aria-selected="false">Reveal</button>
+      </div>
+
+      <div class="grid" id="pane-hide">
+        <section class="panel">
+          <h2>1. The picture</h2>
+          <p class="hint">Any image works. It is re-saved as a lossless PNG, which is what keeps the note alive.</p>
+          <label class="drop" id="hide-drop" for="hide-file">
+            <span id="hide-drop-text">Drop a picture here, or click to choose one</span>
+            <input type="file" id="hide-file" accept="image/*" hidden />
+          </label>
+          <canvas class="preview" id="hide-canvas" width="960" height="640"></canvas>
+          <div class="row">
+            <button class="act" id="hide-sample">Use a sample picture</button>
+            <a class="act" id="hide-download" hidden download="cover-story.png">Download the PNG</a>
+          </div>
+          <p class="status" id="hide-status"></p>
+        </section>
+
+        <section class="panel">
+          <h2>2. The message</h2>
+          <p class="hint">It goes into the least significant bit of every colour channel, so the picture looks the same.</p>
+          <textarea id="message" placeholder="Meet me at the second bench, 8pm."></textarea>
+          <div class="row">
+            <button class="act primary" id="hide-go">Hide it in the picture</button>
+            <span class="status" id="capacity" style="margin: 0"></span>
+          </div>
+          <p class="status bad" id="hide-error"></p>
+
+          <h2 style="margin-top: 18px">3. The cover story</h2>
+          <p class="hint">Three innocent captions for posting it. Click one to copy it.</p>
+          <button class="act" id="caption-go">Write cover captions</button>
+          <div class="captions" id="captions"></div>
+          <p class="status" id="caption-status"></p>
+        </section>
+      </div>
+
+      <div class="grid" id="pane-reveal" hidden>
+        <section class="panel">
+          <h2>The picture</h2>
+          <p class="hint">Drop the PNG you were given. Nothing is uploaded anywhere.</p>
+          <label class="drop" id="reveal-drop" for="reveal-file">
+            <span id="reveal-drop-text">Drop the picture here, or click to choose one</span>
+            <input type="file" id="reveal-file" accept="image/*" hidden />
+          </label>
+          <canvas class="preview" id="reveal-canvas" width="960" height="640"></canvas>
+          <div class="row">
+            <button class="link" id="reveal-last">or check the picture you just made</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>What the pixels say</h2>
+          <p class="hint">A checksum decides whether the text is intact, so a broken copy says so instead of guessing.</p>
+          <div class="found" id="found"></div>
+          <p class="status" id="reveal-status"></p>
+          <div class="row">
+            <select id="tone">
+              <option value="plain">Read it plainly</option>
+              <option value="poetic">Read it as a poem</option>
+              <option value="spy">Read it like a handler</option>
+            </select>
+            <button class="act" id="read-go">Open the message</button>
+          </div>
+          <div class="found" id="read"></div>
+        </section>
+      </div>
+
+      <footer>
+        <a href="https://pollinations.ai/?ref=badge">
+          <img
+            src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg"
+            alt="Made with pollinations.ai"
+          />
+        </a>
+        <p>
+          The picture and the message stay in this tab. Only the text you ask Pollinations to write —
+          the captions you request, or a message you ask it to rephrase — is sent to the model.
+          Hiding and revealing are pure arithmetic on pixels.
+        </p>
+      </footer>
+    </main>
+
+    <script src="shared/stego.js"></script>
+    <script src="shared/pollen.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
