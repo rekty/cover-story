@@ -7,7 +7,7 @@
 
   // Empty unless the owner registers an App Key (enter.pollinations.ai/keys →
   // Apps); it only labels the consent screen and attributes traffic.
-  const APP_KEY = "";
+  const APP_KEY = "pk_TRM5Aq2QwxGsVj12";
 
   const memory = new Map();
   const store = {

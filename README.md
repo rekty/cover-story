@@ -50,6 +50,18 @@ Header layout, 12 bytes: magic `CSG1`, payload length (uint32, big endian), CRC3
 then the UTF-8 message. Bits are written most significant first across the red, green and blue bytes
 of each pixel in order; alpha is skipped.
 
+## Reviewer quick test
+
+Two minutes at **https://rekty.github.io/cover-story/**:
+
+1. **Hide** tab → **Use a sample picture** → type a note → **Hide it in the picture**. The PNG downloads.
+2. **Reveal** tab → drop that PNG → the note comes back and the checksum is confirmed.
+3. **Connect Pollen**, then **Write cover captions**: three captions arrive and the balance drops,
+   because that call is billed to your own key, not the developer's.
+4. **Open the message** reads the note back in another voice, keeping every name and number.
+
+Changing one pixel, or saving the PNG as JPEG, makes step 2 report damage instead of guessing.
+
 ## Capacity
 
 Three bits per pixel, minus 12 bytes of header. A 960×640 picture holds 225 kB; a 200×200 picture
