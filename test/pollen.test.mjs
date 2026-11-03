@@ -54,7 +54,9 @@ test("device flow: code, then approval", async () => {
 
   const started = await Pollen.connect();
   assert.equal(started.userCode, "WXYZ-1234");
-  assert.equal(JSON.parse(calls[0].options.body).client_id, undefined);
+  // The app key travels as client_id so the consent screen names the app and
+  // the traffic is attributed to it (BRING_YOUR_OWN_POLLEN.md, device flow).
+  assert.equal(JSON.parse(calls[0].options.body).client_id, "pk_TRM5Aq2QwxGsVj12");
   assert.equal(Pollen.status().state, "signed-out");
 
   assert.equal((await Pollen.poll()).state, "pending");
